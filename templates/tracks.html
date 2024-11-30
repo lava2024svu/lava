@@ -1,0 +1,133 @@
+{% extends 'base_generic.html' %}
+{% load static %}
+{% block title %}Alhani Store - Album - Tracks{% endblock %}
+{% block content %}
+    <div class="Albumsbg">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="Albumstitlepage">
+                        <h2>Album - Tracks</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="Albums">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <table>
+                        {% for track in tracks %}
+                            <tr>
+                                <td style="width: 150px;">
+                                    <a href="#" data-toggle="modal" data-target="#musicModal{{ track.id }}">
+                                        {% if track.album.cover_image %}
+                                            <img src="{{ track.album.cover_image.url }}" alt="{{ track.album.title }}" style="width: 30px; height: 30px;" />
+                                        {% else %}
+                                            <img src="{% static 'album_covers/default_album_cover.png' %}" alt="{{ track.album.title }}" style="width: 30px; height: 30px;" />
+                                        {% endif %}
+                                    </a>
+                                </td>
+                                <td style="padding-left: 20px;">
+                                    <a href="#" data-toggle="modal" data-target="#musicModal{{ track.id }}">
+                                        <h3 style="color: #dc3545;">{{ track.title }}</h3>
+                                        <strong style="color: green;">{{ track.album.title }}</strong>
+                                        <p>Duration: {{ track.duration }}</p>
+                                    </a>
+                                </td>
+                            </tr>
+
+                            <!-- نافذة منبثقة لتشغيل الموسيقى -->
+                            <div class="modal fade" id="musicModal{{ track.id }}" tabindex="-1" role="dialog" aria-labelledby="musicModalLabel{{ track.id }}" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="musicModalLabel{{ track.id }}">تشغيل الموسيقى</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            {% if user.is_authenticated %}
+                                                {% if track.is_owner_or_subscribed %}
+                                                    <!-- عرض المقطع كاملاً للمشتركين -->
+                                                    <audio id="audio{{ track.id }}" controls>
+                                                        <source src="{{ track.audio_file.url }}" type="audio/mpeg">
+                                                        متصفحك لا يدعم عنصر الصوت.
+                                                    </audio>
+                                                    <br/><br/>
+                                                    <strong>
+                                                        {{ track.textm }}
+                                                    </strong>
+                                                    <br/><br/>
+                                                {% else %}
+                                                    <!-- عرض 20 ثانية فقط للمستخدمين غير المشتركين -->
+                                                    <audio id="audio{{ track.id }}" controls>
+                                                        <source src="{{ track.audio_file.url }}#t=0,20" type="audio/mpeg">
+                                                        متصفحك لا يدعم عنصر الصوت.
+                                                    </audio>
+                                                    <br/><br/>
+                                                    <strong>
+                                                        {{ track.textm|slice:":100" }}
+                                                    </strong>
+                                                    <br/><br/>
+                                                    <p>للحصول على المقطع الكامل، يرجى الاشتراك أو الشراء.</p>
+                                                {% endif %}
+                                            {% else %}
+                                                <p>يرجى تسجيل الدخول للوصول إلى المقطع الكامل.</p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">إغلاق</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <tr>
+                                <td colspan="2">No tracks found in this Album.</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // البحث عن كل النوافذ المنبثقة وإيقاف الموسيقى عند إغلاق النافذة
+            {% for track in tracks %}
+            $('#musicModal{{ track.id }}').on('hidden.bs.modal', function () {
+                var audio = document.getElementById('audio{{ track.id }}');
+                if (audio) {
+                    audio.pause(); // إيقاف التشغيل
+                    audio.currentTime = 0; // إعادة تشغيل الملف من البداية
+                }
+            });
+            {% endfor %}
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            {% for track in tracks %}
+            // التعامل مع المقطع الصوتي
+            var audioElement = document.getElementById('audio{{ track.id }}');
+
+            // التحقق مما إذا كان المستخدم مشتركًا أم لا
+            var isSubscribed = {{ track.is_owner_or_subscribed|yesno:"true,false" }};
+            
+            if (!isSubscribed) {
+                // إذا لم يكن المستخدم مشتركًا، يتم إيقاف المقطع بعد 20 ثانية
+                audioElement.addEventListener('timeupdate', function() {
+                    if (audioElement.currentTime >= 20) {
+                        audioElement.pause();  // إيقاف المقطع بعد 20 ثانية
+                        audioElement.currentTime = 0;  // إعادة المقطع للبداية
+                        alert("لتشغيل المقطع الكامل، يرجى الاشتراك.");
+                    }
+                });
+            }
+            {% endfor %}
+        });
+    </script>
+{% endblock %}

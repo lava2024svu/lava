@@ -1,0 +1,161 @@
+{% extends 'base_generic.html' %}
+
+{% block title %}Alhani Store - Most Viewed Tracks{% endblock %}
+
+{% block extraheader %}
+    <style>
+        .album-card {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            padding: 15px;
+            transition: transform 0.3s ease;
+        }
+        
+        .album-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .album-cover img {
+            border-radius: 10px;
+            max-height: 250px;
+            object-fit: cover;
+            margin-bottom: 15px;
+        }
+        
+        .album-details h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .album-details p {
+            margin: 5px 0;
+        }
+        
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+            padding: 10px 20px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="Albumsbg">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="Albumstitlepage">
+                    <h2>Most Viewed Tracks</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        {% for track in most_viewed_tracks %}
+        <div class="col-md-4">
+            <div class="album-card">
+                <div class="album-cover">
+                    <img src="{{ track.album.cover_image.url }}" alt="{{ track.album.title }}" class="img-fluid">
+                </div>
+                <div class="album-details text-center">
+                    <h3>{{ track.album.title }}</h3>
+                    <p>Artist: {{ track.album.artist.name }}</p>
+                    <p>Views: {{ track.album.views }}</p>
+                    <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#musicModal{{ track.id }}">Play</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- نافذة منبثقة لتشغيل الموسيقى -->
+        <div class="modal fade" id="musicModal{{ track.id }}" tabindex="-1" role="dialog" aria-labelledby="musicModalLabel{{ track.id }}" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="musicModalLabel{{ track.id }}">تشغيل الموسيقى</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        {% if user.is_authenticated %}
+                            {% if track.is_owner_or_subscribed %}
+                                <!-- عرض المقطع كاملاً للمشتركين -->
+                                <audio id="audio{{ track.id }}" controls>
+                                    <source src="{{ track.audio_file.url }}" type="audio/mpeg">
+                                    متصفحك لا يدعم عنصر الصوت.
+                                </audio>
+                                <br/><br/>
+                                <strong>
+                                    {{ track.textm }}
+                                </strong>
+                                <br/><br/>
+                            {% else %}
+                                <!-- عرض 20 ثانية فقط للمستخدمين غير المشتركين -->
+                                <audio id="audio{{ track.id }}" controls>
+                                    <source src="{{ track.audio_file.url }}" type="audio/mpeg">
+                                    متصفحك لا يدعم عنصر الصوت.
+                                </audio>
+                                <br/><br/>
+                                <strong>
+                                    {{ track.textm|slice:":100" }}
+                                </strong>
+                                <br/><br/>
+                                <p>للحصول على المقطع الكامل، يرجى الاشتراك أو الشراء.</p>
+                            {% endif %}
+                        {% else %}
+                            <p>يرجى تسجيل الدخول للوصول إلى المقطع الكامل.</p>
+                        {% endif %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">إغلاق</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-md-12">
+            <p>No tracks found.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<br/><br/><br/>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // البحث عن كل النوافذ المنبثقة وإيقاف الموسيقى عند إغلاق النافذة
+        {% for track in most_viewed_tracks %}
+        $('#musicModal{{ track.id }}').on('hidden.bs.modal', function () {
+            var audio = document.getElementById('audio{{ track.id }}');
+            if (audio) {
+                audio.pause(); // إيقاف التشغيل
+                audio.currentTime = 0; // إعادة تشغيل الملف من البداية
+            }
+        });
+        {% endfor %}
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        {% for track in most_viewed_tracks %}
+        // التعامل مع المقطع الصوتي
+        var audioElement = document.getElementById('audio{{ track.id }}');
+
+        // التحقق مما إذا كان المستخدم مشتركًا أم لا
+        var isSubscribed = {{ track.is_owner_or_subscribed|yesno:"true,false" }};
+        
+        if (!isSubscribed) {
+            // إذا لم يكن المستخدم مشتركًا، يتم إيقاف المقطع بعد 20 ثانية
+            audioElement.addEventListener('timeupdate', function() {
+                if (audioElement.currentTime >= 20) {
+                    audioElement.pause();  // إيقاف المقطع بعد 20 ثانية
+                    audioElement.currentTime = 0;  // إعادة المقطع للبداية
+                    alert("لتشغيل المقطع الكامل، يرجى الاشتراك.");
+                }
+            });
+        }
+        {% endfor %}
+    });
+</script>
+{% endblock %}

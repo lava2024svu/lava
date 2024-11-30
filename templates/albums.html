@@ -1,0 +1,73 @@
+{% extends 'base_generic.html' %}
+{% load static %}
+{% block title %}Alhani Store - Albums{% endblock %}
+{% block content %}
+    <div class="Albumsbg">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="Albumstitlepage">
+                        <h2>Albums</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="Albums">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    {% for category, albums in albums_by_category.items %}
+                    <div class="col-md-12">
+                        <h3 style="color: #dc3545;">{{ category.name }}</h3>
+                        <table>
+                            {% for album in albums %}
+                                <tr>
+                                    <td style="width: 150px;">
+                                        <a href="{% url 'tracks' album.id %}">
+                                            {% if album.cover_image %}
+                                                <img src="{{ album.cover_image.url }}" alt="{{ album.title }}" style="width: 30px; height: 30px;"/>
+                                            {% else %}
+                                                <img src="{% static 'album_covers/default_album_cover.png' %}" alt="{{ album.title }}" style="width: 30px; height: 30px;"/>
+                                            {% endif %}
+                                        </a>
+                                    </td>
+                                    <td style="padding-left: 20px;">
+                                        <a href="{% url 'tracks' album.id %}">
+                                            <strong style="color: green;">{{ album.title }}</strong>
+                                            <p>Artist: {{ album.artist }}</p>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="2">No albums found in this category.</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+
+                        <!-- إضافة روابط الصفحات -->
+                        <div class="pagination">
+                            <span class="step-links">
+                                {% if albums.has_previous %}
+                                    <a href="?page=1">&laquo; first</a>
+                                    <a href="?page={{ albums.previous_page_number }}">previous</a>
+                                {% endif %}
+
+                                <span class="current">
+                                    Page {{ albums.number }} of {{ albums.paginator.num_pages }}.
+                                </span>
+
+                                {% if albums.has_next %}
+                                    <a href="?page={{ albums.next_page_number }}">next</a>
+                                    <a href="?page={{ albums.paginator.num_pages }}">last &raquo;</a>
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

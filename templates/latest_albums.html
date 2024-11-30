@@ -1,0 +1,42 @@
+{% extends 'base_generic.html' %}
+{% load static %}
+{% block title %}Alhani Store -Latest Albums{% endblock %}
+
+{% block content %}
+<div class="Albumsbg">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="Albumstitlepage">
+                    <h2>Latest Albums</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <ul>
+                {% for album in latest_albums %}
+                        <li>
+                            <a href="{% url 'tracks' album.id %}">
+                                {% if album.cover_image %}
+                                    <img src="{{ album.cover_image.url }}" width="100px" height="100px"/>
+                                {% else %}
+                                    <img src="{% static 'album_covers/default_album_cover.png' %}" width="100px" height="100px"/>
+                                {% endif %}
+                                <h3>{{ album.title }}</h3>
+                                <h6>{{ album.artist }}</h6>
+                                <h8>{{ album.release_date }}</h8>
+                            </a>
+                        </li>
+                    </a>
+                {% empty %}
+                    <li>No albums found.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

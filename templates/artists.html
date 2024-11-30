@@ -1,0 +1,92 @@
+{% extends 'base_generic.html' %}
+
+{% block title %}Alhani Store - Artists{% endblock %}
+
+{% block extraheader %}
+    <style>
+        .pagination {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .pagination a, .pagination span {
+            padding: 10px 15px;
+            margin: 0 5px;
+            display: inline-block;
+            color: #4CAF50;
+            text-decoration: none;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .pagination a:hover {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .pagination .current {
+            background-color: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="Albumsbg">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="Albumstitlepage">
+                    <h2>Artists</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="artist-container">
+    <h2>Artists</h2>
+    <div class="artist-grid">
+        {% for artist in page_obj %}
+        <div class="artist-card">
+            <div class="artist-image">
+                <a href="{% url 'artist' artist.id %}" class="view-details">
+                    <img src="{{ artist.image.url }}" alt="{{ artist.name }}" width="100px" height="100px">
+                </a>
+            </div>
+            <div class="artist-info">
+                <a href="{% url 'artist' artist.id %}" class="view-details">
+                    <h3>{{ artist.name }}</h3>
+                </a>
+                <a href="{% url 'artist' artist.id %}" class="view-details">
+                    <p>{{ artist.bio|truncatewords:15 }}</p>
+                </a>
+                <a href="{% url 'artist' artist.id %}" class="view-details">View Details</a>
+            </div>
+        </div>
+        {% empty %}
+        <p>No artists found.</p>
+        {% endfor %}
+    </div>
+
+    <!-- إضافة روابط التصفح (pagination) -->
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+</div>
+{% endblock %}

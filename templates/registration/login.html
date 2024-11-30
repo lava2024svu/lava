@@ -1,0 +1,62 @@
+{% extends 'base_generic.html' %}
+{% block title %}Alhani Store - Log-in{% endblock %}
+{% block extrahead %}
+<style>
+.cssinput {
+    border: 2px solid #b1b0b0 !important;  
+    border-radius: 10px !important;    
+    padding: 12px 19px !important;      
+    margin-bottom: 20px !important;     
+    color: #000 !important;              
+    width: 100% !important;              
+    font-size: 20px !important;         
+    transition: border-color 0.3s !important; 
+}
+
+.cssinput:focus {
+    border-color: #4CAF50 !important;
+    outline: none !important;       
+}
+
+</style>
+{% endblock %}
+{% block content %}
+    <div class="Albumsbg">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="Albumstitlepage">
+                        <h2>Log In</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="Albums">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="titlepage">
+                        {% if user.is_authenticated %}
+                            <p>أنت مسجل دخول بالفعل! <a href="{% url 'home' %}" style="color: #dc3545;">العودة إلى الصفحة الرئيسية</a>.</p>
+                        {% else %}
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="{{ form.username.id_for_label }}" style="font-size: large; font-weight: 500;">Username : &nbsp;&nbsp;&nbsp;</label>
+                                <input style="border: 2px solid #b1b0b0; border-radius: 10px; padding: 12px 19px; margin-bottom: 20px; color: #000; width: 40%; font-size: 16px;" type="text" name="username" id="{{ form.username.id_for_label }}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="{{ form.password.id_for_label }}" style="font-size: large; font-weight: 500;">Password : &nbsp;&nbsp;&nbsp;</label>
+                                <input style="border: 2px solid #b1b0b0; border-radius: 10px; padding: 12px 19px; margin-bottom: 20px; color: #000; width: 40%; font-size: 16px;" type="password" name="password" id="{{ form.password.id_for_label }}" required>
+                            </div>
+                            <br/>
+                            <button class="send" type="submit">Submit</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

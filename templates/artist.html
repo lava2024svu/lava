@@ -1,0 +1,86 @@
+{% extends 'base_generic.html' %}
+{% load static %}
+
+{% block title %}Alhani Store - Artist{% endblock %}
+
+{% block extraheader %}
+    <style>
+        .card {
+            border: none;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+
+        .card-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .card-text {
+            color: #666;
+            font-size: 1em;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="Albumsbg">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="Albumstitlepage">
+                        <h2>Artist: "{{ artist.name }}"</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-4">
+        <!-- Artist Info Section -->
+        <div class="row">
+            <div class="col-md-4 text-center">
+                <!-- Artist Image -->
+                <img src="{{ artist.image.url }}" class="rounded-circle img-fluid" alt="{{ artist.name }}" style="width: 250px; height: 250px; object-fit: cover;">
+            </div>
+            <div class="col-md-8">
+                <!-- Artist Details -->
+                <h3>{{ artist.name }}</h3>
+                <p style="font-size: 1.1em; color: #555;">{{ artist.bio }}</p>
+            </div>
+        </div>
+
+        <!-- Albums Section -->
+        <hr>
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <h3 class="mb-3">Albums</h3>
+                <div class="row">
+                    {% for album in albums %}
+                        <div class="col-md-4 mb-4">
+                            <div class="card shadow-sm">
+                                <a href="{% url 'tracks' album.pk %}">
+                                    {% if album.cover_image %}
+                                        <img src="{{ album.cover_image.url }}" class="card-img-top img-fluid" alt="{{ album.title }}" style="height: 250px; object-fit: cover;">
+                                    {% else %}
+                                        <img src="{% static 'album_covers/default_album_cover.png' %}" class="card-img-top img-fluid" alt="{{ album.title }}" style="height: 250px; object-fit: cover;">
+                                    {% endif %}
+                                </a>
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">{{ album.title }}</h5>
+                                    <p class="card-text">by {{ album.artist.name }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <p class="text-muted">No albums found for this artist.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

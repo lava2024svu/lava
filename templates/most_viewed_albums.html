@@ -1,0 +1,79 @@
+{% extends 'base_generic.html' %}
+
+{% block title %}Alhani Store - Most Viewed Albums{% endblock %}
+
+{% block extraheader %}
+    <style>
+        .album-card {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            padding: 15px;
+            transition: transform 0.3s ease;
+        }
+        
+        .album-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .album-cover img {
+            border-radius: 10px;
+            max-height: 250px;
+            object-fit: cover;
+            margin-bottom: 15px;
+        }
+        
+        .album-details h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .album-details p {
+            margin: 5px 0;
+        }
+        
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+            padding: 10px 20px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="Albumsbg">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="Albumstitlepage">
+                    <h2>Most Viewed Albums</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        {% for album in most_viewed_albums %}
+        <div class="col-md-4">
+            <div class="album-card">
+                <div class="album-cover">
+                    <img src="{{ album.cover_image.url }}" alt="{{ album.title }}" class="img-fluid">
+                </div>
+                <div class="album-details text-center">
+                    <h3>{{ album.title }}</h3>
+                    <p>Artist: {{ album.artist.name }}</p>
+                    <p>Views: {{ album.views }}</p>
+                    <a href="{% url 'tracks' album.id %}" class="btn btn-primary">View Tracks</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-md-12">
+            <p>No albums found.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<br/><br/><br/>
+{% endblock %}
